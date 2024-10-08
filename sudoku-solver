@@ -1,53 +1,52 @@
-:- use_module(library(clpfd)).  % Importa a biblioteca CLPFD para restrições de domínio
+:- use_module(library(clpfd)).
 
-% Sudoku Solver em Prolog
-
-% Definindo a matriz Sudoku como uma lista de 9 listas, cada uma representando uma linha
+% Predicado principal do Sudoku
 sudoku(Puzzle) :-
     Puzzle = [A, B, C, D, E, F, G, H, I],  % Cada linha do puzzle
-    append(Puzzle, Vars),                  % Coloca todas as variáveis em uma única lista
-    Vars ins 1..9,                         % Restringe os valores a 1..9
+    append(Puzzle, Vars),                  % Junta todas as variáveis do puzzle em uma lista
+    Vars ins 1..9,                         % Restringe os valores das variáveis para 1 a 9
     valid([A, B, C, D, E, F, G, H, I]),    % Verifica se as linhas são válidas
     transpose([A, B, C, D, E, F, G, H, I], Transposed),  % Gera a transposta para verificar as colunas
     valid(Transposed),                     % Verifica se as colunas são válidas
-    blocks([A, B, C, D, E, F, G, H, I], Blocks),         % Gera os blocos de 3x3
-    valid(Blocks),                         % Verifica se os blocos de 3x3 são válidos
-    maplist(label, Puzzle).               % Executa o backtracking para preencher o tabuleiro
+    blocks([A, B, C, D, E, F, G, H, I]),   % Gera os blocos de 3x3
+    maplist(label, Puzzle).                % Realiza o backtracking para resolver o puzzle
 
-% Verifica se todos os elementos da lista de listas são válidos (linhas, colunas ou blocos)
+% Verifica se cada linha/coluna/bloco contém números distintos
 valid([]).
 valid([Head|Tail]) :-
-    all_distinct(Head),                   % Verifica se todos os elementos da linha/coluna/bloco são distintos
+    all_distinct(Head),
     valid(Tail).
 
-% Gera os blocos de 3x3
-blocks([], []).
-blocks([A,B,C|Rest], [Block1,Block2,Block3|BlocksTail]) :-
-    block(A, B, C, Block1),
-    block(A, B, C, Block2),
-    block(A, B, C, Block3),
-    blocks(Rest, BlocksTail).
+% Gera os blocos de 3x3 do Sudoku
+blocks([A, B, C, D, E, F, G, H, I]) :-
+    blocks_3x3(A, B, C),
+    blocks_3x3(D, E, F),
+    blocks_3x3(G, H, I).
 
-block([], [], [], []).
-block([A1,A2,A3|ARest], [B1,B2,B3|BRest], [C1,C2,C3|CRest], [A1,B1,C1,A2,B2,C2,A3,B3,C3]) :-
-    block(ARest, BRest, CRest, _).
+% Divide linhas em blocos de 3x3
+blocks_3x3([], [], []).
+blocks_3x3([A1, A2, A3 | RestA],
+           [B1, B2, B3 | RestB],
+           [C1, C2, C3 | RestC]) :-
+    all_distinct([A1, A2, A3, B1, B2, B3, C1, C2, C3]),  % Garante que todos os números no bloco sejam distintos
+    blocks_3x3(RestA, RestB, RestC).
 
-% Predicado para resolver qualquer matriz de Sudoku fornecida
+% Predicado para resolver o Sudoku
 solve(Puzzle) :-
     sudoku(Puzzle),
     maplist(writeln, Puzzle).
 
-% Exemplo de uso
+% Exemplo de Sudoku
 example(Puzzle) :-
-    Puzzle = [[_,_,_,_,2,_,_,6,_],
-              [6,8,_,1,_,_,_,_,_],
-              [_,_,3,_,_,8,_,_,4],
-              [1,_,_,_,_,_,_,2,_],
-              [_,4,_,8,_,1,_,5,_],
-              [_,5,_,_,_,_,_,_,9],
-              [7,_,_,3,_,_,9,_,_],
-              [_,_,_,_,6,2,_,3,5],
-              [_,9,_,_,1,_,_,_,_]].
+    Puzzle = [[8, _, _, _, _, _, _, _, _],
+              [_, _, 3, 6, _, _, _, _, _],
+              [_, 7, _, _, 9, _, 2, _, _],
+              [_, 5, _, _, _, 7, _, _, _],
+              [_, _, _, _, 4, 5, 7, _, _],
+              [_, _, _, 1, _, _, _, 3, _],
+              [_, _, 1, _, _, _, _, 6, 8],
+              [_, _, 8, 5, _, _, _, 1, _],
+              [_, 9, _, _, _, _, 4, _, _]].
 
-% Para testar, chame o predicado example/1 e solve/1 em sua consulta:
+% Para testar:
 % ?- example(Puzzle), solve(Puzzle).
