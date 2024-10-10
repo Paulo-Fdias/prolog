@@ -1,42 +1,41 @@
 :- use_module(library(clpfd)).
 
-% Predicado principal do Sudoku
-sudoku(Puzzle) :-
-    Puzzle = [A, B, C, D, E, F, G, H, I],  % Cada linha do puzzle
-    append(Puzzle, Vars),                  % Junta todas as variáveis do puzzle em uma lista
-    Vars ins 1..9,                         % Restringe os valores das variáveis para 1 a 9
-    valid([A, B, C, D, E, F, G, H, I]),    % Verifica se as linhas são válidas
-    transpose([A, B, C, D, E, F, G, H, I], Transposed),  % Gera a transposta para verificar as colunas
-    valid(Transposed),                     % Verifica se as colunas são válidas
-    blocks([A, B, C, D, E, F, G, H, I]),   % Gera os blocos de 3x3
-    maplist(label, Puzzle).                % Realiza o backtracking para resolver o puzzle
 
-% Verifica se cada linha/coluna/bloco contém números distintos
+sudoku(Puzzle) :-
+    Puzzle = [A, B, C, D, E, F, G, H, I],  
+    append(Puzzle, Vars),                  
+    Vars ins 1..9,                        
+    valid([A, B, C, D, E, F, G, H, I]),    
+    transpose([A, B, C, D, E, F, G, H, I], Transposed), 
+    valid(Transposed),                     
+    blocks([A, B, C, D, E, F, G, H, I]),   
+    maplist(label, Puzzle).               
+
+
 valid([]).
 valid([Head|Tail]) :-
     all_distinct(Head),
     valid(Tail).
 
-% Gera os blocos de 3x3 do Sudoku
+
 blocks([A, B, C, D, E, F, G, H, I]) :-
     blocks_3x3(A, B, C),
     blocks_3x3(D, E, F),
     blocks_3x3(G, H, I).
 
-% Divide linhas em blocos de 3x3
 blocks_3x3([], [], []).
 blocks_3x3([A1, A2, A3 | RestA],
            [B1, B2, B3 | RestB],
            [C1, C2, C3 | RestC]) :-
-    all_distinct([A1, A2, A3, B1, B2, B3, C1, C2, C3]),  % Garante que todos os números no bloco sejam distintos
+    all_distinct([A1, A2, A3, B1, B2, B3, C1, C2, C3]),  
     blocks_3x3(RestA, RestB, RestC).
 
-% Predicado para resolver o Sudoku
+
 solve(Puzzle) :-
     sudoku(Puzzle),
     maplist(writeln, Puzzle).
 
-% Exemplo de Sudoku
+
 example(Puzzle) :-
     Puzzle = [[8, _, _, _, _, _, _, _, _],
               [_, _, 3, 6, _, _, _, _, _],
@@ -48,5 +47,38 @@ example(Puzzle) :-
               [_, _, 8, 5, _, _, _, 1, _],
               [_, 9, _, _, _, _, 4, _, _]].
 
-% Para testar:
-% ?- example(Puzzle), solve(Puzzle).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*  Puzzle = [[_, _, _, 2, 6, _, 7, _, 1],
+              [6, 8, _, _, 7, _, _, 9, _],
+              [1, 9, _, _, _, 4, 5, _, _],
+              [8, 2, _, 1, _, _, _, 4, _],
+              [_, _, 4, 6, _, 2, 9, _, _],
+              [_, 5, _, _, _, 3, _, 2, 8],
+              [_, _, 9, 3, _, _, _, 7, 4],
+              [_, 4, _, _, 5, _, _, 3, 6],
+              [7, _, 3, _, 1, 8, _, _, _]], solve(Puzzle)
+
+
+ [[_, _, 1, _, 2, _, 3, _, _], 
+  [_, 2, _, 3, _, 1, _, 4, _], 
+  [3, _, _, _, 4, _, _, 1, 2],  
+  [_, 3, 4, _, _, 2, _, _, 1], 
+  [1, _, 2, 4, _, 3, 5, _, _], 
+  [_, _, 5, 1, _, _, 4, 2, 3], 
+  [4, _, _, _, 3, _, _, 2, _], 
+  [_, 1, 3, 2, _, 4, _, 5, _], 
+  [_, _, 2, _, 1, _, _, _, 4]] */
+
